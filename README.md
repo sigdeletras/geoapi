@@ -2,6 +2,8 @@
 
 Simple example of developing a RESTful API with Node.js and Express to provide geographic data stored in PostgreSQL / PostGIS.
 
+[http://www.sigdeletras.com/2019/apirest-de-datos-geograficos-con-node-y-express/](http://www.sigdeletras.com/2019/apirest-de-datos-geograficos-con-node-y-express/)
+
 ## Requirements.
 
 - Node.js
