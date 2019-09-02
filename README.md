@@ -35,7 +35,7 @@ const config = {
 
 ## Update layer name.
 
-In the /data directory, you can find a ESRI Shape File named 'alojamientos'. This is the layer used in the example. If you want use it, it must necesariy load in the PostgreSQL database.
+In the /data directory, you can find a ESRI Shape File named 'alojamientosdera'. This is the layer used in the example. If you want use it, it must necesariy load in the PostgreSQL database.
 
 Otherwise, if you want to use another layer of your own database, you must update the SQL query found in the file *controllers/layerController.js*
 
