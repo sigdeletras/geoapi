@@ -11,7 +11,7 @@ Simple example of developing a RESTful API with Node.js and Express to provide g
 ## Clone the repo and install the dependencies.
 
 ```
-$ git clone https://github.com/contentful/the-example-app.nodejs.git
+$ git clone https://github.com/sigdeletras/geoapi.git
 $ cd geoapi
 $ npm install
 ```
