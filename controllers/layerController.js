@@ -17,15 +17,14 @@ const pool = new Pool({
     port: port,
 })
 
-
 // Callback que retorna los datos de la consulta
 
 // Almancenamos en una constante la función que realiza la llamada y devuelve el archivo.
 const getGeojson = (request, response, next) => {
     // Almacenamos la consulta SQL
-    let consultaAlojamientos = 'SELECT  id,  st_x(geom ) as lng, st_y(geom ) as lat, nombre,  tipo,  cod_mun,  municipio,  provincia FROM alojamientodera;'
+    let queryLayer = 'SELECT  id,  st_x(geom ) as lng, st_y(geom ) as lat, nombre,  tipo,  cod_mun,  municipio,  provincia FROM alojamientodera;'
 
-    pool.query(consultaAlojamientos, (err, res) => {
+    pool.query(queryLayer, (err, res) => {
         if (err) {
             return console.error('Error ejecutando la consulta. ', err.stack)
         }

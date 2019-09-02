@@ -1,7 +1,7 @@
 // Creamos un objeto con los parámetros de conexión.
 const config = {
     db: {
-        host: '127.0.0.1',
+        host: '172.22.0.2',
         user: 'postgres',
         password: 'postgres',
         database: 'data',
