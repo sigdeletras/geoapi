@@ -21,13 +21,26 @@ const pool = new Pool({
 
 // Almancenamos en una constante la función que realiza la llamada y devuelve el archivo.
 const getGeojson = (request, response, next) => {
-    // Almacenamos la consulta SQL
-    let queryLayer = 'SELECT  id,  st_x(geom ) as lng, st_y(geom ) as lat, nombre,  tipo,  cod_mun,  municipio,  provincia FROM alojamientodera;'
+
+    // Creamos una variable para almacenar el valro del parámetro con el nombre de la capa
+    let layername = request.params.layername;
+    
+    // Almacenamos la consulta SQL añadiendo la variable mediante template literals
+    
+    let queryLayer = `SELECT  id,  st_x(geom ) as lng, st_y(geom ) as lat, nombre,  tipo,  cod_mun,  municipio,  provincia FROM ${layername};`
 
     pool.query(queryLayer, (err, res) => {
         if (err) {
-            return console.error('Error ejecutando la consulta. ', err.stack)
-        }
+            
+            // return console.error('Error ejecutando la consulta. ', err.stack)
+            
+            console.error('Error ejecutando la consulta. ', err.stack)
+            
+            // Mensaje de aviso si no se ha encontrado al capa con el nombre indicado 
+            return  response.json({
+                mensaje : `La capa ${layername} no existe en la base de datos`
+            })
+        }        
         let geojson = GeoJSON.parse(res.rows, { Point: ['lat', 'lng'] });
 
         response.json(geojson);
