@@ -1,5 +1,8 @@
 // layerController.js
 
+// Añadimos el paquete underscore para trabajar con objetos
+const _ = require('underscore');
+
 // Mediante la función require llamamos a los módulos que vamos a usar y los almacenamos en variables
 const Pool = require('pg').Pool
 const GeoJSON = require('geojson');
@@ -17,7 +20,6 @@ const pool = new Pool({
     port: port,
 })
 
-// Callback que retorna los datos de la consulta
 
 // Almancenamos en una constante la función que realiza la llamada y devuelve el archivo.
 const getGeojson = (request, response, next) => {
@@ -26,14 +28,14 @@ const getGeojson = (request, response, next) => {
     let layername = request.params.layername;
 
     // Almacenamos la consulta SQL añadiendo la variable mediante template literals
+    // La hemos modicado para que sea lo más genérica posible
 
-    let queryLayer = `SELECT  id,  st_x(geom ) as lng, st_y(geom ) as lat, nombre,  tipo,  cod_mun,  municipio,  provincia FROM ${layername};`
+    let queryLayer = `SELECT  *,  st_x(geom ) as lng, st_y(geom ) as lat FROM ${layername};`
 
     pool.query(queryLayer, (err, res) => {
         if (err) {
 
             // return console.error('Error ejecutando la consulta. ', err.stack)
-
             console.error('Error ejecutando la consulta. ', err.stack)
 
             // Mensaje de aviso si no se ha encontrado al capa con el nombre indicado 
@@ -41,32 +43,53 @@ const getGeojson = (request, response, next) => {
                 mensaje: `La capa ${layername} no existe en la base de datos`
             })
         }
-        let geojson = GeoJSON.parse(res.rows, { Point: ['lat', 'lng'] });
+
+        // Definimos una nueva variable donde almacenar los datos sin el valor geom
+        // Para ellos recorremos el array y usamos omit de undercore para omitirlo.
+        let rowNoGeom = [];
+        res.rows.forEach(element => {
+            let row = _.omit(element, 'geom');
+            rowNoGeom.push(row);
+
+        });
+
+        let geojson = GeoJSON.parse(rowNoGeom, { Point: ['lat', 'lng'] });
 
         response.json(geojson);
     })
 }
 
-// Función para obtener el listado de capas
-const getLayersList = (request, response, next) => {
+// Función para obtener metadatos de capas
 
-    let queryLayers = `SELECT f_table_name as layername, coord_dimension, srid, type FROM public.geometry_columns;`
+const getLayersMetadata = (request, response, next) => {
+
+    // Generamos la conuslta añadiendo la función  json_build_object para crear el JSON con las tablas geográficas y sus atributos
+    let queryLayers = `SELECT json_build_object(
+        'name', t.f_table_name, 
+        'coord_dimension', t.coord_dimension, 
+        'srid', t.srid, 
+        'geom_type', t.type,
+        'fields', 
+            (SELECT json_agg(json_build_object('field_name', f.column_name, 'field_type', f.udt_name)) 
+            FROM information_schema.COLUMNS f WHERE t.f_table_name = f.table_name
+            )
+        ) as layer FROM geometry_columns t`;
 
     pool.query(queryLayers, (err, res) => {
         if (err) {
-            // return console.error('Error ejecutando la consulta. ', err.stack)
             console.error('Error ejecutando la consulta. ', err.stack)
-            // Mensaje de aviso si no se ha encontrado al capa con el nombre indicado 
             return response.json({
-                mensaje: `No capas geográficas en la base de datos`
+                mensaje: `No existe capas geográficas en la base de datos`
             })
         }
+
         response.json(res.rows);
     })
 }
 
 // Exportamos las funciones para ser usadas dentro de la aplicación
-module.exports = { 
+module.exports = {
     getGeojson,
-    getLayersList
-} 
+    getLayersMetadata,
+}
+
