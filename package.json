@@ -9,7 +9,7 @@
   "author": "Patricio Soriano :: sigdeletras.com",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "geojson": "^0.5.0",
     "pg": "^7.12.1",
     "underscore": "^1.9.1"
